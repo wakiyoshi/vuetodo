@@ -1,58 +1,84 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+  <body>
+    <h1>ToDoリスト</h1>
+      <input type="radio" name="list" v-model="filter" value="all" checked="checked" >すべて
+      <input type="radio" name="list" v-model="filter" value="work" >作業中
+      <input type="radio" name="list" v-model="filter" value="finish" >完了
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>コメント</th>
+          <th>状態</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(todo,index) in filteredTodos" :key="index">
+            <td>{{ index+1 }}</td>
+            <td>{{ todo.task }}</td>
+            <td><input type="button" @click="changeStatus(todo);" :value="todo.status"></td>
+            <td><input type="button" @click="deleteTodo(index);" value="削除"></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>{{todos}}</p>
+   
+    <h1>新規タスクの追加</h1>
+    <input v-model="newTask" type="text">
+    <input type="button" value="追加" @click="addTasks">
+  </body>
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
-</script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
+export default {
+
+  data() {
+    return{
+      id: 0,
+      status:'',
+      newTask:'',
+      todos:[ ],
+      filter:'all',
+ 
+    }
+  },
+  methods: {
+    addTasks() {
+      this.todos.push(
+        { id: this.id++,task: this.newTask, status: '作業中' }
+      )
+      this.newTask = '';
+    },
+    changeStatus(todo){
+      if(todo.status === '作業中'){
+        const finish = {id: todo.id, task: todo.task, status:'完了'};
+        this.todos.splice(todo.id,1,finish);
+      }else{
+        const work = {id: todo.id, task: todo.task, status:'作業中'};
+        this.todos.splice(todo.id,1,work);
+
+      }
+    },
+    deleteTodo(index){
+      this.todos.splice(index,1)
+    }
+    },
+  computed: {
+    filteredTodos(){
+    if(this.filter === 'all'){
+      return this.todos
+    }else if(this.filter === 'finish'){
+      return this.todos.filter((todo) => {
+        return todo.status === '完了' 
+      });
+    }else{
+      return this.todos.filter((todo)=>{
+        return todo.status === '作業中'
+      });
+    }
+    }
+  }
+  
+};
+</script>
